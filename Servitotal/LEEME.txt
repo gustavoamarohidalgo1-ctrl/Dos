@@ -1,0 +1,297 @@
+AGENCIA DE EMPLEOS "S.T SERVITOTAL" - Programa para Windows y Mac
+=================================================================
+Version de distribucion: Windows 1.9.0 - Mac 1.7.1.
+
+SERVITOTAL Y SERVICIO EXCLUSIVO
+  Servitotal usa el mismo programa que Servicio Exclusivo:
+  instaladores/construccion/igualar_con_tia.py lo genera desde el de Servicio
+  Exclusivo. Solo cambian los colores (tema oscuro con detalles rosa y fucsia,
+  tambien en el contrato), el logo y los datos propios:
+  - nombre Servitotal, carpeta de datos Servitotal y copias en
+    Documentos\Respaldos Servitotal (la carpeta adicional lleva la marca
+    .copias-servitotal): los datos nunca se mezclan con los de otra agencia.
+  - El contrato de Servicio Exclusivo, a nombre de la agencia "S.T Servitotal"
+    con su domicilio y su representante, Xiomara Amaro Arellano (sin RUC).
+  - Comision sin propuesta: en cada contrato se escribe el porcentaje.
+  - Garantia en meses, como en Servicio Exclusivo: por defecto 2; 0 = sin
+    garantia.
+  - Avisos (desde la 1.9.0): en Ganancias se anotan los avisos que la agencia
+    pega afuera de su local (S/ 10 cada uno) y se ve lo que dejan, junto con
+    las finanzas del dia, de la semana y del mes.
+  Al abrir por primera vez la version 1.8.0 o posterior, despues de una
+  copia de seguridad, las garantias guardadas en dias pasan a meses (30 dias =
+  1 mes, redondeando hacia arriba), sin tocar los contratos firmados ni las fechas de
+  fin ya calculadas. Lo que se escribio en la entrevista y en "Sueldo que pide"
+  ya no aparece en la ficha, pero se conserva en la base y en las copias .csv.
+  El codigo de esta carpeta es la version 1.9.0 y esta guia la describe; los
+  paquetes de Windows de la carpeta instaladores tambien son 1.9.0 (el de Mac
+  sigue en 1.7.1).
+  Los cambios del programa se hacen en Servicio Exclusivo y se traen con
+  igualar_con_tia.py. Los datos y colores de Servitotal se cambian en ese
+  script: lo que se cambie solo en agencia.py se pierde al volver a igualar.
+
+WINDOWS: ZIP SIN INSTALAR (RECOMENDADO)
+  Servitotal-1.9.0-Windows-portable.zip incluye Python y todos los recursos.
+  1. Antes de extraer: clic derecho sobre el ZIP > Propiedades > marque
+     "Desbloquear" (si aparece) > Aceptar.
+  2. Clic derecho sobre el ZIP > Extraer todo (por ejemplo en Documentos).
+  3. Abra la carpeta Servitotal-1.9.0 y haga doble clic en Servitotal.exe.
+  Servitotal.exe es el Python oficial (pythonw.exe, firmado por Python
+  Software Foundation) con otro nombre. El ZIP no tiene .bat ni ejecutables
+  propios sin firma, asi que funciona tambien donde Windows 11 bloquea
+  programas desconocidos. Conserve toda la carpeta.
+  Acceso en el Escritorio: clic derecho en Servitotal.exe > Enviar a >
+  Escritorio (crear acceso directo).
+  Los datos se guardan en %LOCALAPPDATA%\Servitotal, igual que con el instalador.
+  Si no abre, Diagnosticar Servitotal.exe muestra el error en una ventana.
+
+DATOS DE LA VERSION ANTERIOR
+  La version anterior guardaba agencia.db junto al programa. La primera vez que
+  Servitotal instalado se abre sin datos en Windows, busca ese archivo en el
+  Escritorio, Documentos, Descargas, OneDrive, la carpeta personal y las
+  carpetas de primer nivel del disco del sistema (C:), y pregunta si desea
+  traerlo. El aviso muestra la carpeta, las cantidades y la fecha del ultimo
+  cambio para que reconozca sus datos. Al aceptar, copia y actualiza los
+  datos; el archivo original no se modifica. Si responde No, no vuelve a
+  preguntar por ese archivo. La base del programa de otra agencia (por ejemplo
+  Servicio Exclusivo) no se ofrece: se reconoce por el agencia.py que la
+  acompana.
+  Si tambien hay una copia de seguridad, se ofrece la mas reciente.
+  Con el ZIP portable o el de Python oficial, o si no lo encuentra:
+  Ctrl+Shift+B > "Traer datos de otro archivo..." y elija el agencia.db de la
+  carpeta anterior (el original no se modifica). Cierre antes el programa
+  anterior.
+
+ABRIR CON PYTHON OFICIAL INSTALADO POR SEPARADO
+  Servitotal-1.9.0-Windows-Python.zip contiene solo codigo, recursos y ayuda.
+  Instale Python 3.14.7 completo: Windows installer (64-bit) de
+  https://www.python.org/downloads/release/python-3147/
+  Mantenga tcl/tk and IDLE, el lanzador y la asociacion de archivos con Python.
+  No use el Python de Microsoft Store: guarda los datos en una carpeta privada.
+  Extraiga todo el ZIP y abra Abrir Servitotal.pyw. No abra app/agencia.py.
+  Este acceso usa %LOCALAPPDATA%\Servitotal, igual que la version instalada.
+  Diagnosticar Servitotal.py muestra los errores si se ejecuta con Python.
+
+USAR DESDE EL CODIGO (alternativa, con Python instalado)
+  1. Descargue Python desde https://www.python.org/downloads/
+  2. Al instalar, marque la casilla "Add Python to PATH" y deje activado
+     "tcl/tk and IDLE".
+
+ABRIR EL PROGRAMA DESDE EL CODIGO
+  Doble clic en "Iniciar.bat". Se abre en pantalla completa.
+  F11 = pantalla completa total. Esc = salir de ella.
+  Iniciar.bat avisa si falta agencia.py o si Python es demasiado antiguo.
+  Abierto asi, el programa guarda los datos junto a agencia.py.
+  (Opcional) Doble clic en "Crear_EXE.bat" para crear "Servitotal.exe".
+  Si deja agencia.db junto al .exe, usa esos datos; si no, los guarda en la
+  carpeta de datos de Servitotal (ver INSTALADORES).
+  En Mac: doble clic en "Crear_App_Mac.command" crea "Servitotal.app", con el
+  nombre y el icono de Servitotal en el Dock (en vez de "Python"). Dejela en
+  esta carpeta, junto a agencia.py.
+  Este lanzador usa el Python instalado en este equipo y muestra su minimo real
+  de macOS al crearlo. Los instaladores incluyen su propio Python.
+  Crear_EXE.bat incluye logo e iconos, usa un entorno temporal aislado (necesita
+  internet para instalar PyInstaller) y se detiene ante errores sin copiar un
+  ejecutable anterior como si fuera nuevo.
+
+SEGURIDAD DE LOS DATOS
+  Los datos se guardan en el momento (cada cambio llega al disco). Ademas:
+  - Copia automatica al abrir el programa, cada 24 horas si hubo cambios, al
+    cerrarlo y antes de borrar algo. Cada copia se verifica antes de aceptarla.
+  - Copia FUERA del programa, en Documentos\Respaldos Servitotal: una por
+    dia (ultimos 30 dias) y los datos en archivos .csv que abre Excel.
+  - Para RESTAURAR una copia, hacer una ahora o elegir una carpeta adicional (USB,
+    OneDrive...): pulse Cmd+Shift+B (Mac) o Ctrl+Shift+B (Windows).
+  - Borrar un cliente/trabajadora o deshacer una asignacion guarda antes una
+    copia y avisa de lo que se perderia (comisiones cobradas, contratos).
+  - Lo que escribe se GUARDA SOLO al pasar a otro registro, cambiar de seccion o
+    cerrar el programa, sin avisos. Si a un registro nuevo le faltan datos
+    obligatorios, queda como borrador y reaparece al pulsar "Nuevo" (incluso
+    al abrir el programa otra vez). Si en un registro ya guardado falta un dato
+    obligatorio, el programa dice cual y ofrece volver a lo guardado. Si la
+    base se dana o desaparece, la recupera de las copias.
+  Consejo: elija tambien una carpeta adicional en un USB o en OneDrive. El
+  programa solo copia en la carpeta que se eligio (la marca con un archivo
+  .copias-servitotal): si el USB no esta conectado, copia cuando vuelva a
+  estarlo, y nunca en otro USB que tome la misma letra.
+  La version del programa aparece abajo en el menu lateral.
+
+INSTALADORES
+  instaladores/Servitotal-Mac-arm64.dmg       Mac con chip Apple M1 o posterior.
+  instaladores/Servitotal-Windows-x64.exe     Windows 10 u 11 de 64 bits.
+  Estos paquetes incluyen Python: el equipo receptor no necesita instalarlo.
+  El minimo de macOS se calcula a partir de los binarios incluidos y aparece
+  en las instrucciones del DMG; no se promete compatibilidad inferior.
+  Mac: abra el DMG y arrastre Servitotal a Aplicaciones. Si macOS no verifica
+  al desarrollador, use clic derecho > Abrir o la opcion "Abrir igualmente"
+  de Ajustes del Sistema > Privacidad y seguridad.
+  Windows: abra el instalador; instala para el usuario actual sin administrador.
+  Si lo recibe por WhatsApp, NO lo abra desde WhatsApp (no ejecuta .exe y no
+  muestra nada): guardelo en Descargas y abralo desde alli.
+  Si aparece "Windows protegio su PC" de SmartScreen: el instalador todavia
+  no tiene firma de editor. Si descargo Servitotal-Windows-x64.exe del
+  repositorio oficial y confia en su procedencia, pulse "Mas informacion",
+  compruebe el nombre y pulse "Ejecutar de todas formas".
+  Si aparece "Control inteligente de aplicaciones bloqueo..." (Windows 11),
+  ese aviso no permite continuar: use el ZIP recomendado de arriba.
+  Repositorio: https://github.com/gustavoamarohidalgo1-ctrl/PrimaXiomara
+  No hace falta desactivar Defender ni agregar exclusiones. Si se detecta un
+  virus concreto, conserve el texto de Seguridad de Windows > Proteccion
+  contra virus y amenazas > Historial de proteccion para revisarlo.
+  En Propiedades, el instalador 1.9.0 completo ocupa 11.846.014 bytes.
+  Si la descarga quedo incompleta, descargue nuevamente el archivo completo.
+  El instalador 1.9.0 se probo en Windows Server 2022 y 2025 (47 pruebas,
+  todas correctas): con clics y en silencio, sobre la 1.7.1 abierta (avisa y
+  ofrece Reintentar), actualizando desde la 1.8.0 y la 1.7.2 con datos
+  ficticios (copia previa; los avisos se agregan sin cambiar nada; 30 dias pasan
+  a 1 mes), anotando avisos, ocho veces seguidas con el antivirus encendido,
+  con cuentas sin administrador (tambien con tildes y enie), imprimiendo el
+  contrato en Word y PDF, y abierto con doble clic como recibido por WhatsApp
+  (SmartScreen: Mas informacion > Ejecutar de todas formas). Defender no
+  detecto nada. No reproducen otros antivirus ni la configuracion de cada equipo.
+  Si el programa no abre, el motivo queda en el archivo errores_inicio.log de
+  la carpeta de datos (menu Inicio > Servitotal > Datos de la agencia).
+  Los datos se guardan aparte del programa:
+    Mac:      ~/Library/Application Support/Servitotal
+    Windows:  %LOCALAPPDATA%\Servitotal   (acceso "Datos de la agencia")
+  Actualizar la aplicacion conserva esa carpeta. Al desinstalar en Windows,
+  por defecto se conservan los datos; borrarlos requiere elegirlo expresamente.
+  Los instaladores y sus datos tienen identidad propia para coexistir con
+  el programa de Servicio Exclusivo.
+  Para trasladar datos desde la carpeta original a una instalacion, vea
+  DATOS DE LA VERSION ANTERIOR. No copie una base con el programa abierto.
+
+SECCIONES
+  Clientes      Nuevo cliente y cuestionario del pedido (sueldo, zona,
+                servicio, horario...). Pestana
+                "Clientes registrados" para ver y editar. Un sueldo escrito
+                1.500 se entiende como mil quinientos (igual que 1,500 o 1500).
+                "Tipo de servicio" (y "Especialidad" de la trabajadora): se puede
+                escribir y sugiere mientras se escribe, o abrir la lista con la flecha.
+  Trabajadoras  Perfil y documentos. El estado (Disponible, En proceso,
+                Trabajando) lo pone el programa segun sus asignaciones y se ve
+                en la lista "Trabajadoras registradas".
+  Areas         Un cuadro por area (Nineras, Cama adentro...). Con "Nueva area" y
+                "Eliminar area..." la agencia crea o quita sus propias areas: aparecen
+                tambien en "Tipo de servicio" del cliente y en "Especialidad" de la
+                trabajadora. Solo se elimina un area sin clientes ni trabajadoras.
+                Dentro de un area:
+                elija el cliente y la trabajadora, y pulse Asignar.
+                Revise los datos del contrato y confirme la asignacion: se abre
+                Contratos con la nueva asignacion elegida.
+  Contratos     En el menu lateral, debajo de Areas. Pestanas "Por firmar" y
+                "Firmados" (alli estan los contratos anteriores). Elija una
+                asignacion para firmar, imprimir, corregir los datos del contrato,
+                registrar el inicio o deshacerla. Al firmar el contrato, el
+                trabajo y la garantia empiezan solos desde la fecha del contrato.
+  Comisiones    Por cobrar, cobrado y cobrado este mes. La comision puede ser un
+                monto o un PORCENTAJE del sueldo (20%, 12.5%...): al preparar el
+                contrato se escribe uno y el otro se calcula solo. Servitotal no
+                propone ninguna: en cada contrato se escribe el porcentaje (si
+                queda vacio, el programa lo pide). El contrato
+                imprime ambos ("S/ 300.00, equivalente al veinte por ciento
+                (20 %) del sueldo mensual pactado de S/ 1,500.00"). Marcar como
+                pagada o cambiar sueldo, porcentaje o monto.
+  Ganancias     Ganancia total, ganancia de colocacion de personal
+                (comisiones cobradas), ganancia de avisos y pendiente de cobro.
+                Boton "Nuevo aviso": fecha, de quien es (opcional) y monto
+                (S/ 10 propuesto) de cada aviso pegado afuera del local.
+                "Finanzas del dia": avisos, ganancia de avisos, personal
+                colocado (asignaciones hechas ese dia), comisiones cobradas
+                ese dia y total, del dia, de su semana (lunes a domingo) y de
+                su mes; flechas para ver otro dia y la lista de avisos del dia
+                (Corregir / Eliminar). Tambien ingresos por area y ultimos
+                pagos. No calcula ganancia neta porque no registra gastos.
+  Garantias     Solo clientes que pidieron garantia. Los MESES se escriben al
+                preparar el contrato (por defecto 2; cualquier numero; 0 = sin
+                garantia). Corren desde la
+                fecha del contrato. Se imprimen en el contrato en letras y numero
+                (por ejemplo "tres (3) meses"). Pestanas: Pendientes, Cerradas y
+                Sin garantia. Solicitar reemplazo: el cliente vuelve a pendiente y
+                la nueva asignacion no cobra comision y conserva sus meses.
+
+NOTA SOBRE LA FIRMA
+  Cada persona puede dibujar su firma en pantalla o pulsar "Firmar con nombre"
+  en su propio recuadro. El nombre se muestra con estilo de firma y se guarda
+  en el contrato. Use esta opcion solo cuando la persona acepte firmar asi.
+  No es una firma digital certificada (con certificado electronico).
+
+IMPRIMIR CONTRATOS
+  "Imprimir" abre una ventana para elegir como abrir el contrato:
+  - Word: archivo .docx, hoja A4 con letra de tamano fijo. Imprimalo con
+    Archivo > Imprimir. Si el equipo no tiene Word, esta opcion aparece
+    desactivada.
+  - PDF: se abre en el navegador (Edge en Windows). Imprimalo con el boton de
+    la impresora o con Ctrl+P.
+  Los dos llevan los colores del contrato de Servitotal.
+  Los archivos quedan en la carpeta contratos (contrato_N.docx o contrato_N.pdf).
+  El contrato NUNCA se imprime solo: se abre y usted lo imprime una vez. La
+  pantalla de Contratos confirma donde se abrio; si no lo ve, busquelo en la
+  barra de tareas en vez de pulsar Imprimir otra vez. (Hasta la 1.7.2 se
+  imprimia solo cada vez que se abria o el navegador recargaba la pagina.)
+
+DATOS
+  agencia.db  -> toda la informacion (haga copias de seguridad de este archivo;
+                 no la sustituya por la de otra agencia)
+  logo.png    -> logo de Servitotal del menu lateral (dejelo en esta carpeta)
+  icono.png / icono.ico / icono.icns -> icono de la aplicacion (ventana, barra de
+                 tareas, Dock). Dejelos en esta carpeta; el .exe usa icono.ico.
+  contratos\  -> contratos generados (Word .docx; PDF si no hay Word)
+  respaldos\  -> copias locales de seguridad
+  errores.log -> registro de errores, si se producen
+
+AJUSTES (al inicio de agencia.py)
+  AGENCIA_NOMBRE, AGENCIA_ESLOGAN (Servitotal), AGENCIA_CARPETA_DATOS
+  (Servitotal: carpeta de datos y de copias; debe seguir siendo Servitotal para
+  no mezclar los datos con los de otra agencia), AGENCIA_NOMBRE_EN_CONTRATO
+  (S.T Servitotal), AGENCIA_RUC (vacio: el contrato nombra a la representante),
+  AGENCIA_REPRESENTANTE, AGENCIA_DNI_REPRESENTANTE, AGENCIA_DOMICILIO,
+  CIUDAD_CONTRATO, MONEDA, COBRO_DEFECTO y PORCENTAJE_DEFECTO (sin valor: no
+  hay propuesta, en cada contrato se escribe el porcentaje) y MESES_GARANTIA
+  (2, los meses que se proponen por defecto).
+  agencia.py se genera con instaladores/construccion/igualar_con_tia.py:
+  cambie estos ajustes en ese script o se perderan al volver a igualar.
+
+ACTUALIZAR CON SEGURIDAD (VERSION 1.9.0)
+  Guarde su trabajo y cierre el programa antes de actualizarlo en Mac o Windows.
+  Windows comprueba si los archivos estan en uso y bloquea la actualizacion o
+  desinstalacion si encuentra una instancia abierta o no puede verificarlo.
+  Dos instaladores de la misma agencia no pueden ejecutarse a la vez.
+  Los archivos nuevos se preparan por separado antes de reemplazar la version
+  anterior. Si el antivirus los esta revisando, el cambio se reintenta durante
+  unos segundos. Si aun asi falla, se intenta recuperar la version anterior. Si Windows
+  tambien impide recuperarla, el mensaje indica donde quedaron los originales.
+  La carpeta normal de datos se conserva; al desinstalar, borrarla sigue siendo
+  una opcion explicita y la respuesta predeterminada es No.
+  Si hay agencia.db, contratos, respaldos, configuracion.json, borradores.json
+  o errores.log dentro de app/runtime, se detiene el cambio para conservarlos.
+  Haga una copia y cambie esa ubicacion antes de actualizar o desinstalar.
+
+CONSERVACION DE COPIAS Y CONTRATOS
+  Una restauracion comprueba y actualiza una copia temporal antes de sustituir
+  la base abierta. Conserva la base anterior si falla esa preparacion y guarda
+  un resguardo si no puede completar la recuperacion.
+  La misma base abierta, incluso con otro nombre o acceso directo, no se puede
+  elegir como fuente de restauracion.
+  Al actualizar, los contratos firmados anteriores se conservan como documento
+  cuando las fichas relacionadas todavia existen. Corregir una ficha despues
+  no reescribe ese documento. Un contrato sin sus personas conserva sus datos
+  existentes y no inventa informacion para reconstruir un pasado desconocido.
+
+VOLVER A GENERAR DISTRIBUCIONES
+  Si cambio el programa de Servicio Exclusivo, ejecute primero:
+    python instaladores/construccion/igualar_con_tia.py
+           CARPETA_DE_SERVICIO_EXCLUSIVO CARPETA_DE_SERVITOTAL
+  (en una sola linea). Despues vuelva a generar los paquetes.
+  Los scripts estan en instaladores/construccion:
+    crear_instalador_mac.sh      Genera el DMG en un Mac Apple Silicon.
+    crear_instalador_windows.sh  Genera el instalador Windows desde un Mac
+                                con makensis, sevenzip y msitools.
+    crear_iconos.sh              Convierte el logo original a formatos de
+                                icono usando herramientas de macOS.
+    crear_portable_windows.py    Crea el ZIP portable a partir del instalador
+                                ya construido. Necesita Python y 7-Zip.
+    crear_paquete_python.py      Crea el ZIP de codigo para Python oficial.
+  Los scripts empacan el codigo actual y los recursos de esta carpeta.
+  No incluyen la base de datos, contratos, respaldos ni datos personales.
+  Si cambia el codigo, vuelva a generar los paquetes antes de distribuirlos.

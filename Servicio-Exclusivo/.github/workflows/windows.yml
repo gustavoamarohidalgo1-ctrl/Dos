@@ -1,0 +1,181 @@
+name: Windows x64
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read     # las pruebas solo leen el repositorio
+
+concurrency:
+  group: windows-${{ github.sha }}
+  cancel-in-progress: true
+
+jobs:
+  instalador:
+    name: Instalador (${{ matrix.os }}, ${{ matrix.modo }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-2022, windows-2025]
+        modo: [ventanas, silencioso]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Instalar, abrir, recorrer, actualizar y desinstalar
+        shell: pwsh
+        run: |
+          $extra = @{}
+          if ('${{ matrix.modo }}' -eq 'ventanas') { $extra.ConVentanas = $true }
+          ./.github/windows/probar_instalador.ps1 -Instalador instaladores/Agencia-de-Empleos-Windows-x64.exe @extra
+
+      - name: Actualizar desde 1.7.0 con datos
+        if: always()
+        shell: pwsh
+        run: ./.github/windows/actualizar_desde_170.ps1 -Instalador instaladores/Agencia-de-Empleos-Windows-x64.exe
+
+      - name: Pruebas del programa con el Python incluido en el instalador
+        if: always() && matrix.modo == 'silencioso'
+        shell: pwsh
+        run: |
+          $py = Join-Path $env:LOCALAPPDATA 'Programs\Agencia de Empleos\runtime\python.exe'
+          & $py -X faulthandler -m unittest discover -v 2>&1 | Tee-Object -FilePath "$env:RUNNER_TEMP\resultados\unittest-instalado.txt"
+          exit $LASTEXITCODE
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: resultados-instalador-${{ matrix.os }}-${{ matrix.modo }}
+          path: ${{ runner.temp }}/resultados
+          if-no-files-found: ignore
+
+  antivirus:
+    name: Antivirus en tiempo real (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-2022, windows-2025]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - name: Encender el antivirus de Windows como en un equipo real
+        shell: pwsh
+        run: ./.github/windows/activar_defender.ps1
+      - name: Instalar y actualizar encima varias veces
+        shell: pwsh
+        run: ./.github/windows/repetir_actualizacion.ps1 -Instalador instaladores/Agencia-de-Empleos-Windows-x64.exe -Veces 8
+      - name: Prueba completa con el antivirus encendido
+        if: always()
+        shell: pwsh
+        run: ./.github/windows/probar_instalador.ps1 -Instalador instaladores/Agencia-de-Empleos-Windows-x64.exe
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: resultados-antivirus-${{ matrix.os }}
+          path: ${{ runner.temp }}/resultados
+          if-no-files-found: ignore
+
+  usuario:
+    name: Cuenta estándar ${{ matrix.cuenta }} (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-2022, windows-2025]
+        cuenta: [tildes, simple]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - name: Instalar y usar con otra cuenta de Windows
+        shell: pwsh
+        run: |
+          $extra = @{}
+          if ('${{ matrix.cuenta }}' -eq 'simple') { $extra.Usuario = 'Prueba Agencia' }
+          ./.github/windows/otro_usuario.ps1 -Instalador instaladores/Agencia-de-Empleos-Windows-x64.exe @extra
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: resultados-usuario-${{ matrix.cuenta }}-${{ matrix.os }}
+          path: ${{ runner.temp }}/resultados
+          if-no-files-found: ignore
+
+  codigo:
+    name: Código fuente (Python ${{ matrix.python }})
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ["3.12", "3.13", "3.14"]
+    runs-on: windows-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+          architecture: x64
+      - name: Pruebas
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force "$env:RUNNER_TEMP\resultados" | Out-Null
+          python -X faulthandler -m unittest discover -v 2>&1 | Tee-Object -FilePath "$env:RUNNER_TEMP\resultados\unittest.txt"
+          exit $LASTEXITCODE
+      - name: Recorrido completo desde el código (pantalla al 100 %, 125 % y 150 %)
+        if: always()
+        shell: pwsh
+        run: |
+          $fallos = 0
+          $env:AGENCIA_PRUEBA_CAPTURAS = "$env:RUNNER_TEMP\resultados\capturas"
+          # 100 % en la pantalla chica de la máquina (1024x768) y 125 % / 150 % en 1920x1080, como una portátil real
+          foreach ($prueba in @(@('1', 0, 0), @('1.25', 1920, 1080), @('1.5', 1920, 1080))) {
+            $escala, $ancho, $alto = $prueba
+            if ($ancho) {
+              ./.github/windows/resolucion.ps1 -Ancho $ancho -Alto $alto
+              if ($LASTEXITCODE -ne 0) { Write-Host "::warning::No se pudo poner ${ancho}x${alto}; se omite la escala $escala"; continue }
+            }
+            $env:AGENCIA_PRUEBA_ESCALA = $escala
+            python .github/windows/humo.py . "$env:RUNNER_TEMP\datos-humo-$escala"
+            if ($LASTEXITCODE -ne 0) { Write-Host "::error::humo.py falló con escala $escala"; $fallos++ }
+          }
+          exit $fallos
+      - name: Iniciar.bat
+        if: always()
+        shell: pwsh
+        run: |
+          $datos = Split-Path -Parent (Resolve-Path agencia.py)
+          ./.github/windows/abrir_programa.ps1 -Archivo "$PWD\Iniciar.bat" -Proceso pythonw -Datos $datos -Nombre "iniciar-bat-${{ matrix.python }}"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: resultados-codigo-${{ matrix.python }}
+          path: ${{ runner.temp }}/resultados
+          if-no-files-found: ignore
+
+  portable:
+    name: EXE portable (Crear_EXE.bat)
+    runs-on: windows-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          architecture: x64
+      - name: Crear_EXE.bat
+        shell: cmd
+        run: Crear_EXE.bat < NUL
+      - name: Abrir Agencia.exe
+        shell: pwsh
+        run: |
+          if (-not (Test-Path Agencia.exe)) { "No se creó Agencia.exe"; exit 1 }
+          $datos = Join-Path $env:LOCALAPPDATA 'Agencia de Empleos'
+          ./.github/windows/abrir_programa.ps1 -Archivo "$PWD\Agencia.exe" -Proceso Agencia -Datos $datos -Nombre 'exe-portable'
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: resultados-portable
+          path: ${{ runner.temp }}/resultados
+          if-no-files-found: ignore

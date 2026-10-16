@@ -1,0 +1,16 @@
+*.py text eol=lf
+*.pyw text eol=lf
+*.md text eol=lf
+*.txt text eol=lf
+*.sh text eol=lf
+*.command text eol=lf
+*.nsi text eol=lf
+*.nsh text eol=lf
+# CRLF también dentro del repositorio: «Download raw file» entrega el archivo tal cual y cmd.exe lo necesita.
+*.bat -text
+*.png binary
+*.ico binary
+*.icns binary
+*.exe binary
+*.dmg binary
+*.zip binary

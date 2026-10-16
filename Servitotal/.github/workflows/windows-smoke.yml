@@ -1,0 +1,78 @@
+name: Comprobar Servitotal en Windows
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  instalador:
+    name: Instalador en ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-2022, windows-2025]
+    steps:
+      - name: Obtener archivos de Servitotal
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+
+      - name: Activar la protección en tiempo real de Microsoft Defender
+        shell: pwsh
+        run: |
+          Set-MpPreference -DisableRealtimeMonitoring $false
+          $exclusiones = (Get-MpPreference).ExclusionPath
+          if ($exclusiones) { Remove-MpPreference -ExclusionPath $exclusiones }
+          Get-MpComputerStatus | Select-Object AMServiceEnabled, AntivirusEnabled, RealTimeProtectionEnabled, AMRunningMode | Format-List
+
+      - name: Instalar sobre 1.7.1, abrir, traer datos anteriores y desinstalar
+        shell: pwsh
+        run: python instaladores/construccion/verificar_windows.py --exe instaladores/Servitotal-Windows-x64.exe --evidencia evidencia-windows.json
+
+      - name: Conservar evidencia de la prueba
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: evidencia-servitotal-windows-${{ matrix.os }}
+          path: evidencia-windows.json
+          if-no-files-found: warn
+          retention-days: 14
+
+  portable:
+    name: ZIP portable en ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-2022, windows-2025]
+    steps:
+      - name: Obtener archivos de Servitotal
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+
+      - name: Activar la protección en tiempo real de Microsoft Defender
+        shell: pwsh
+        run: |
+          Set-MpPreference -DisableRealtimeMonitoring $false
+          $exclusiones = (Get-MpPreference).ExclusionPath
+          if ($exclusiones) { Remove-MpPreference -ExclusionPath $exclusiones }
+          Get-MpComputerStatus | Select-Object AMServiceEnabled, AntivirusEnabled, RealTimeProtectionEnabled, AMRunningMode | Format-List
+
+      - name: Abrir Servitotal.exe del ZIP sin tocar datos anteriores y diagnosticar
+        shell: pwsh
+        run: python instaladores/construccion/verificar_portable_windows.py --zip instaladores/Servitotal-1.9.0-Windows-portable.zip --evidencia evidencia-portable-windows.json
+
+      - name: Conservar evidencia del ZIP
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: evidencia-servitotal-portable-windows-${{ matrix.os }}
+          path: evidencia-portable-windows.json
+          if-no-files-found: warn
+          retention-days: 14
